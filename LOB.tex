@@ -8,7 +8,7 @@
 
 \newcommand{\todo}[1]{\textsf{TODO: #1}}
 
-\title{\textsf{\Huge Draft} \\[3mm] License on Blockchain \\[2mm] \large Managing software licenses on the Ethereum blockchain}
+\title{\textsf{\Huge Draft} \\[3mm] License on Blockchain \\[2mm] \large Transferring and Managing software licenses on the Ethereum blockchain}
 \author{Alexander Hoppen, Peter Hoppen}
 
 \begin{document}
@@ -19,15 +19,15 @@
 
 \section{Overview}
 
-The trade of used software is currently associated with a considerable organisational overhead. Since software licenses are no physical goods, but simply represent the right to use a given software product or are a license key that can easily be copied, on each transaction it needs to be made sure that
+The trade of used software is currently associated with a considerable organisational overhead. Since software licenses are no physical goods, but simply represent the right to use a given software product or are a license key that can easily be copied, on each transaction (transfer) it needs to be made sure that
 \begin{enumerate}
-  \item the previous owner will not use the license anymore after the purchase has been completed
-  \item the previous owner has not sold the license to different person or organisation
+  \item the previous owner will not use the license anymore after the transfer has been completed
+  \item the previous owner has not sold the license to a different person or organisation
   \item the sold license is genuine and has been issued by the software manufacturer or a certified third party.
   \item Furthermore, the new owner needs to be able to testify that his purchased license is valid by tracing his \emph{used license} to its original issuing.
 \end{enumerate}
 
-Currently, all these checks are performed by \emph{used software traders} that are familiar with the kind of software they are trading so that they can verify there validity and who will require the seller to sign that he will not be using the software anymore. Furthermore, they keep a record of all completed transfers so that they can trace any license traded by them back to its original issuing should its genuineness be doubted. 
+Currently, all these checks are performed by \emph{used software traders} that are familiar with the kind of software they are trading so that they can verify the validity of the traded licenses. As part of the process they will require the seller to sign that he will not be using the software anymore. Furthermore, they keep a record of all completed transfers so that they can trace any license traded by them back to its original issuing should its genuineness be doubted. 
 
 The above points 1, 2, and 4 are problems that similarly apply to cryptocurrencies like Bitcoin and Ethereum and have been solved for these. In particular 1 and 2 correspond to the problem of \emph{double spending} where the same coin shall not be able to be spent twice and 4 corresponds to the existence of a \emph{digital ledger} that records the entire transaction history.
 
@@ -40,15 +40,15 @@ In this paper we will introduce an approach that allows software licenses to be 
 We shall call the framework presented in the following \emph{LOB (License on Blockchain)}.
 
 
-\subsection{Representation of licenses on Ethereum}
+\subsection{Representation of LOB licenses on Ethereum}
 
 The number of different software products that need licensing is tremendous and it would by no means be possible or feasible to list all of these up-front. Nor should the first licensing of a software product using LOB require any special registration and have a higher overhead than the licensing of existing software products. Hence, we need to create a \emph{framework} that allows the issuing of licenses for \emph{unknown} software products \emph{on demand}. Still, the format of these licenses shall be formalised to standardise the legal and technical aspects to trade these, keeping the organisational overhead as low as possible.
 
 The core of the license's representation will be the \emph{LOB token contract}. It is an Ethereum smart contract template that is compliant to the ERC20 \cite{erc20} standard (ERC 20 describes an interface to trade \emph{tokens} on Ethereum; the concrete meaning of what the token represents is left open by the standard). It will be programmed in a way that makes double spending inherently impossible.
 
 Every time, new software licenses shall be issued using LOB, a new token contract will be instantiated. This token contract will contain a description of the type of software it manages as well as a quantity fixing the number of separately tradable licenses of this type.
-
-A license's representation will consist of a human readable \emph{name} as well as a \emph{license ID} which may be the software manufacturer's name together with the products stock keeping unit (SKU) or another standardised naming scheme.
+ 
+A license's representation will consist of a human-readable \emph{license name} as well as a \emph{license ID} which may be the software manufacturer's name together with the products stock keeping unit (SKU) or another standardised naming scheme.
 
 These LOB tokens will be tradable as standard Ethereum tokens with standard wallet software. A specialised wallet that automatically verifies the license's validity is still highly recommended though.
 
@@ -56,24 +56,24 @@ Section \ref{ch:tokenContract} will describe the token contract in more detail.
 
 \subsection{Verifying the validity of LOB licenses}
 
-The framework, as described so far, allows everyone to anonymously issue licenses for any software contract in arbitrary numbers without any validation. Furthermore, it may have modified the token contract towards his advantage (e.g. allowing double spending for certain addresses). We will tackle this problem in two steps: Firstly, we will remove the anonymity of token contract creation through \emph{SSL certificates} and secondly, a central \emph{LOB root contract} will issue all token contracts, thus guaranteeing that they have not been tampered with.
+The framework, as described so far, allows everyone to anonymously issue licenses for any software contract in arbitrary numbers without any validation. Furthermore, the issuer may have modified the token contract towards his advantage (e.g. allowing double spending for certain addresses). We will tackle this problem in two steps: Firstly, we will remove the anonymity of token contract creation through \emph{SSL certificates} and secondly, a central \emph{LOB root contract} will issue all token contracts, thus guaranteeing that they have not been tampered with.
 
-\subsubsection{Identifying the license issuer}
+\subsubsection{Identifying the LOB license issuer}
 
-By being able to identify the issuer of an LOB license, we are easily able to make him liable for the validity of the license in a similar fashion that any reseller is liable for the validity of all licenses he sells. To perform this identification task, we rely on SSL certificates and SSL certificate authorities (CA) that are well established for identification of major websites to prevent phishing.
+By being able to identify the issuer of an LOB license, it is easy to make him liable for the validity of the license in a similar fashion that any reseller is liable for the validity of all licenses he sells. To perform this identification task, we rely on SSL certificates and SSL certificate authorities (CA) that are well established for identification of major websites to prevent phishing.
 
-We require every license issuer to own an SSL certificate that is valid at the time of the license issuing. The issuer will use the private key of this SSL certificate to sign a text (whose content will be described later on and be called the certificate text) and include the signature and his public key in token contract. Since only he owns the private key and thus only he can have produced the signature, it is guaranteed that he has issued the LOB license.
+We require every license issuer to own an SSL certificate that is valid at the time of the license issuing. The issuer will use the private key of this SSL certificate to sign a text (whose content will be described later on and be called the certificate text) and include the signature and his public key in the token contract. Since only he owns the private key and thus only he can have produced the signature, it is guaranteed that he has issued the LOB license.
 
-Should an LOB license not contain a valid signature or the issuer's SSL certificate be invalid (e.g. expired, not issued by a trusted CA), the LOB license should not be trusted.
+Should an LOB license not contain a valid signature or the issuer's SSL certificate be invalid (e.g. expired, not issued by a trusted CA), the LOB license is invalid by definition and should not be trusted.
 
 \subsubsection{Preventing corruption of the token contract}
 
-The key building block for a successful transfer of software licenses is the correct functioning of the token contract and the infiltration of a single malicious LOB token contract would greatly harm LOB's reputation. Hence, there correctness must be ensured most thoroughly. We shall thus consider no token contract valid unless its code has been written or sanctioned by the LOB mother organisation (whose format is still to be discussed).
+The key building block for a successful transfer of software licenses is the correct functioning of the token contract. The infiltration of a single malicious LOB token contract would greatly harm LOB's reputation. Hence, their correctness must be ensured most thoroughly. The LOB framework shall thus consider no token contract valid unless its code has been written or sanctioned by the LOB mother organisation (whose structure is still to be discussed).
 
-Whether or not a token contract matches our source code can be checked in two different ways:
+Whether or not a token contract matches source code sanctioned by LOB can be checked in two different ways:
 \begin{enumerate}
   \item The wallet software compares the contract's bytecode against a list of valid contract codes and accepts if the bytecode is in that list
-  \item A sanctioned \emph{root contract} issues a token contracts which always have the same code and only token contracts issued by one of these root contracts are valid
+  \item A sanctioned \emph{root contract} issues token contracts which always have the same code and only token contracts issued by one of these root contracts are valid
 \end{enumerate}
 
 We have decided to use alternative 2 for the following reasons:
@@ -133,7 +133,7 @@ The creation of a new token contract thus works like the following (see figure \
   \label{fig:tokenContractCreation}
 \end{figure}
 
-\subsection{Further legal considerations}
+\subsection{LOB licenses issuance}
 
 LOB licenses may either be issued as the official software license with the original purchase of the software or \emph{retroactively}. In the latter case, the issuer will verify that the licensee currently owns the \emph{hardcopy license} that was previously issued by the software manufacturer. At the same time the issuer lets the licensee sign that he will not sell the hardcopy license outside the LOB framework and that he will require the same of anyone he should sell the license to. Should any licensee wish to exit the LOB framework, he needs to destroy the LOB license first by invoking the corresponding function on the token contract. A confirmation that the issuer has imposed this restriction on the licensee is included in the certificate text the issuer signs upon the creation of the token contract.
 
@@ -141,9 +141,26 @@ Furthermore, a purchaser may wish to know how trustworthy the issuer is and what
 
 In case of a legal dispute it may be necessary that the token contract and all licenses issued with it are revoked (e.g. because the licensee deliberately deceived the issuer by faking the original license and giving wrong statements). In this case, the license's issuer may call \texttt{revoke()} on the token contract, disabling it and rendering all licenses managed by it void. Any reimbursements associated with this action would need to be decided by a court.
 
-\subsection{Extensions to the basic system}
+\subsection{Linking an LOB license to an installation}
 
 Building on top of the newly created infrastructure, new avenues can be taken. Towards the end, we will describe a method in which the LOB license is transferred into a \emph{software installation} itself. The basic idea is that every installation of the software will generate an Ethereum address and will only function as long as a valid LOB licenses is associated with this address. Thus, to activate the software, one needs to transfer the license to that address, withdrawing the license deactivates the installation. Obviously, each license can only be associated to one address. Hence it is impossible to activate multiple installations using the same license or to sell a license while still using it.
+
+\section{Glossary}
+
+To avoid confusion, some terms that are used in this paper, shall be briefly defined:
+
+\begin{itemize}
+  \item \textbf{Hardcopy license:} A software license that already exists but is not managed using LOB (yet)
+  \item \textbf{LOB license:} A software license that is managed using LOB
+  \item \textbf{Software manufacturer:} A person or company developing and selling software
+  \item \textbf{Issuer:} Any person or company issuing LOB licenses, either a software manufacturer or a third party verifying hardcopy licenses
+  \item \textbf{Licensee:} The rightful owner of a software license (hardcopy or LOB)
+  \item \textbf{Associated address} of an LOB license\textbf{:} The ethereum address that owns a given LOB license. The owner of that address's private key is the licensee.
+  \item \textbf{LOB certificate} (short certificate)\textbf{:} A text composed by the issuer that explains the genuineness of the LOB license.
+  \item \textbf{SSL certificate:} A RSA/elliptic curve/… certificate issued by a trusted certificate authority which includes the SSL certificate owner's name. Trusted certificate authorities correspond to those trusted by major internet browsers.
+  \item \textbf{Address:} An ethereum address backed by either a smart contract or an address in a user's wallet.
+
+\end{itemize}
 
 \section{Smart contract components}
 
@@ -160,7 +177,7 @@ Both contracts shall be described in detail below.
 
 For each issuing of software licenses on LOB, a new token contract is created which manages the current owner of these licenses. This means that for a common software like \emph{Microsoft Office}, many different token contracts managing the same type of software may exist. The contract is ERC20-compliant and may thus be traded with common Ethereum wallet software as well as a specialised LOB wallet which additionally verifies the validity of the license as described in section \ref{ch:licenseValidation}. A complete list of methods available in the token contract shall be given in the following.
 
-\todo{It may be cheeper to move all token contract methods into the root contract and let the token contract only have fields for storage. These can only be modified by the token contract. We would loose ERC20-compliance if we do this though}
+\todo{It may be cheaper to move all token contract methods into the root contract and let the token contract only have fields for storage. These can only be modified by the token contract. We would lose ERC20-compliance if we do this though}
 
 \subsubsection{Description of the license}
 
@@ -333,7 +350,7 @@ The token contract keeps a tally that keeps track of the number of licenses asso
 
 The root contract's purpose is to generate genuine token contracts that are guaranteed to adhere to the LOB standard and that cannot be manipulated by the issuer towards his advantage. Every Ethereum user can request the creation of a token contract by the root contract and the root contract will adhere to that request. It will not verify the issuer's identity or the integrity of his signature but simply record the parameters it has been given. A verification of the issuer's data is neither wanted nor possible since many decisions (like which CA to trust) are “soft” in that each licensee should be able to make a decision for himself depending on his liability needs. Verification of the certificate's signature also cannot be performed on the blockchain since its computationally too expensive.
 
-The root smart contract contains a template for the LOB certificate whose placeholders will be filled by the issuer and whose entire text will be signed by the user's SSL certificate. Should a new version of this certificate text (e.g. in a different language or because of ambiguities in the original text) become available, a new root contract has to be created and the current one be deactivated if needed. The same holds if a new version of the token contract becomes available.
+The root smart contract contains a template for the LOB certificate whose placeholders will be filled by the issuer and whose entire text will be signed by the user's SSL certificate. Should a new version of this certificate text (e.g. in a different language or because of ambiguities in the original text) become available, a new root contract has to be created and the current one is deactivated if needed. The same holds if a new version of the token contract becomes available.
 
 The usage of a single (or small number of) root contract(s) also has the advantage that all token contracts may be traversed without examining the entire blockchain by simply looking at the root contract's outgoing transactions. This allows wallets to show all licenses owned by an address without the user having to enter the addresses of all token contracts.
 
@@ -441,9 +458,9 @@ In a first step, the issuer of the license needs to ensure that the licensee act
 \begin{itemize}
   \item The LOB license is issued upon purchase of the actual license. The seller of the software license knows by definition that the purchaser owns the license on purchase and can simply issue the LOB license instead of a hardcopy license as part of fulfilling the purchase contract.
 
-  \item Used software traders already have well established procedures to verify that the instance selling used software to them is not using it anymore. When the used software trader resells the software, it can issue an LOB license as if it were a software manufacturer.
+  \item Used software traders already have well-established procedures to verify that the instance selling used software to them is not using it anymore. When the used software trader resells the software, it can issue an LOB license as if it were a software manufacturer.
 
-  \item Similarly, any trustworthy third party may perform the validations used software traders perform at the moment, but without purchasing the licenses that shall from now on be managed using LOB. Instead the third party simply issues the LOB license to the current hardcopy license owner. One crucial aspect of validation the issuer has to perform, is that it must certify that the license is not managed using LOB (or any similar system) yet, as to prevent the issuing of multiple LOB licenses for the same hardcopy license. Furthermore, the issuer needs to ensure that the licensee does not sell the hardcopy license without invalidating the LOB license first. This is done by including a paragraph in the root contract's certificate that obliges every LOB purchaser to not sell the license outside the LOB framework without destroying its LOB counterpart first.
+  \item Similarly, any trustworthy third party may perform the validations used software traders perform at the moment, but without purchasing the licenses that shall from now on be managed using LOB. Instead, the third party simply issues the LOB license to the current hardcopy license owner. One crucial aspect of validation the issuer has to perform is that it must certify that the license is not managed using LOB (or any similar system) yet, as to prevent the issuing of multiple LOB licenses for the same hardcopy license. Furthermore, the issuer needs to ensure that the licensee does not sell the hardcopy license without invalidating the LOB license first. This is done by including a paragraph in the root contract's certificate that obliges every LOB purchaser to not sell the license outside the LOB framework without destroying its LOB counterpart first.
 \end{itemize}
 
 \subsection{Phase 2: Blockchain transactions}
@@ -452,7 +469,7 @@ After the issuer has verified that he wants to issue an LOB license as described
 
 \begin{enumerate}
   \item It determines a unique identifier for the license to be managed using LOB. This may be the SKU of the software manufacturer, another standardised naming scheme
-  \item It composes a human readable name describing the type of license
+  \item It composes a human-readable name describing the type of license
   \item It determines the liability it can give for the LOB license to be backed by a duly purchased hardcopy license (this step is not applicable if the software manufacturer issues the LOB license)
   \item It generates the license certificate text by invoking \texttt{certificate(…)} on the root smart contract
   \item The just returned text gets signed using an SSL certificate issued by a certificate authority. If such a certificate does not exist yet or has expired, the issuer needs to request one before being able to proceed.
@@ -460,7 +477,7 @@ After the issuer has verified that he wants to issue an LOB license as described
   \item After the transaction gets mined, the issuer optionally tells the licensee the address of the newly created token contract together with instructions on how to verify and trade the LOB license (should the licensee already be familiar with LOB, a wallet software may automatically pick up the new token contract by traversing all newly created contracts by the root smart contract)
 \end{enumerate}
 
-Optionally, licensee and issuer may set up a smart contract that only generates the LOB license after the licensee has payed the issuer a fee for creating the license to avoid one party not fulfilling its duty.
+Optionally, licensee and issuer may set up a smart contract that only generates the LOB license after the licensee has paid the issuer a fee for creating the license to avoid one party not fulfilling its duty.
 
 \section{Validating the ownership of a software license}
 \label{ch:licenseValidation}
@@ -472,7 +489,7 @@ The following list shall be a guideline on what checks must be performed to veri
 \begin{itemize}
   \item Verify that the other party owns the private key of the Ethereum address he claims to possess by giving him a message to sign and verify that the signature can be decrypted using the address's public key
   \item Determine the token contract managing the software license in question either by enumerating all token contracts created by the root contract or asking the licensee for the token contract's address
-  \item Call \texttt{balanceOf(…)} with the licensee's address on the token contract and verify that the amount of licenses matches (or exceeds) the claimed amount
+  \item Call \texttt{balanceOf(…)} with the licensee's address on the token contract and verify that a number of licenses matches (or exceeds) the claimed amount
   \item Check that the token contract has not been revoked
   \item Check that the license name describes the type of license the licensee claims to own
   \item Check that the data returned by \texttt{issuerCertificate()} is a valid SSL certificate
@@ -485,18 +502,18 @@ The following list shall be a guideline on what checks must be performed to veri
 \section{Revoking of LOB licenses}
 \label{ch:revoking}
 
-In case there is a dispute whether a license is valid or if the licensee has lied to the issuer in the process of issuing the LOB license, it may be necessary that the LOB license is revoked, i.e. invalidated and rendered void. Bearing the right to perform this action carries a great responsibility as it may easily be abused. Since the issuer is already a person of trust for the traded LOB license who would loose his trustworthiness (and thus his business) by arbitrarily revoking LOB licenses, we believe that he is the right candidate to be able to revoke the LOB licenses he has issued. 
+In case there is a dispute whether a license is valid or if the licensee has lied to the issuer in the process of issuing the LOB license, it may be necessary that the LOB license is revoked, i.e. invalidated and rendered void. Bearing the right to perform this action carries a great responsibility as it may easily be abused. Since the issuer is already a person of trust for the traded LOB license who would lose his trustworthiness (and thus his business) by arbitrarily revoking LOB licenses, we believe that he is the right candidate to be able to revoke the LOB licenses he has issued. 
 
 Should an LOB license be revoked (e.g. by order of the court), the issuer of that license can invoke \texttt{revoke(…)} on the root contract, which in turn calls \texttt{revoke()} on the token contract, setting a boolean \texttt{isRevoked} flag on the token contract, such that it will be displayed as being revoked in LOB wallet software which also makes it unable to trade these licenses any further. The action cannot be undone. Thus, should a revoke have been performed accidentally, a new token contract needs to be created that has exactly the same certificate parameters as the token contract that has just been revoked.
 
 Should a major security flaw be detected in the token contracts issued by a root contract, the root contract may choose to invalidate all of its token contracts while at the same time a new root contract that contains the bugfix issues new token contracts with exactly the same owners. \todo{Do we really want to do this and have the right to revoke all token contracts?}
 
-Similarly, a license owner may decide that he no longer wants to manage his licenses using LOB, e.g. to go back to hardcopy trading for whichever reason. For this he needs to destroy his LOB license and can do so by invoking \texttt{destroy(…)} on the token contract.
+Similarly, a license owner may decide that he no longer wants to manage his licenses using LOB, e.g. to go back to hardcopy trading for whichever reason. For this, he needs to destroy his LOB license and can do so by invoking \texttt{destroy(…)} on the token contract.
 
 \section{Use cases}
 \label{ch:useCases}
 
-Since licenses are just plain ethereum tokens, they can be incorporated in further smart contracts, built around LOB. Some potential ideas shall be sketched below. Their full specification is still to be done.
+Since licenses are just plain Ethereum tokens, they can be incorporated in further smart contracts, built around LOB. Some potential ideas shall be sketched below. Their full specification is still to be done.
 
 \subsection{Purchase contract}
 \label{ch:purchaseContract}
@@ -508,15 +525,15 @@ To avoid the trade issue where one party transfers the LOB license to be traded 
 
 The LOB licenses as described so far do not prevent the scenario where one license is used to activate multiple installations (when not allowed by license terms). Such a misuse may currently only be discovered when the software manufacturer performs an audit at the licensee. The method described in the following section allows a software installation to verify that the licensee owns a valid LOB license for given software and does not use the same license for multiple installations.
 
-The basic idea is that the LOB license is transferred into the installation in order to activate it. Hence the license is associated with the \emph{installation} and no longer the licensee's address. Since the same license cannot be associated with two addresses, only one installation can be activated with the same license. The license owner still has the right to withdraw the license from an installation at any moment. Should the installation detect that it no longer is associated to the license, it may act accordingly, e.g. by limiting its functionality or refusing to launch.
+The basic idea is that the LOB license is transferred into the installation in order to activate it. Hence the license is associated with the \emph{installation} and no longer the licensee's address. Since the same license cannot be associated with two addresses, only one installation can be activated with the same license. The license owner still has the right to withdraw the license from an installation at any moment. Should the installation detect that it no longer is associated with the license, it may act accordingly, e.g. by limiting its functionality or refusing to launch.
 
 In detail, the method will be performed like this:
 
-When installing, the software installation creates an Ethereum address and asks the user to transfer a small amount of ether to that address. These ethers will be needed to set up some helper smart contracts by the installation. Once the ethers have reached the address, the installation asks for a \emph{management address}, creates an \emph{installation contract} and transfers all remaining ethers to the management address. The installation contract will be the contract to which the LOB license will need to be associated for the installation to be activated. It does not own any ethers. The installation contract will relay any transaction request sent to it by the management address and may thus be told to transfer the license to another address at any moment. As long as an appropriate LOB license is associated with the installation contract, the installation is activated.
+When installing, the software installation creates an Ethereum address and asks the user to transfer a small amount of ether to that address. These Ethers will be needed to set up some helper smart contracts by the installation. Once the Ethers have reached the address, the installation asks for a \emph{management address}, creates an \emph{installation contract} and transfers all remaining ethers to the management address. The installation contract will be the contract to which the LOB license will need to be associated for the installation to be activated. It does not own any Ethers. The installation contract will relay any transaction request sent to it by the management address and may thus be told to transfer the license to another address at any moment. As long as an appropriate LOB license is associated with the installation contract, the installation is activated.
 
-It is still need to be determined which LOB licenses are \emph{appropriate} to activate the installation. A feasible option would be to only accept licenses which contain a fixed SKU as the license's name and are issued by the software manufacturer himself or some truster third party issuers.
+It still needs to be determined which LOB licenses are \emph{appropriate} to activate the installation. A feasible option would be to only accept licenses which contain a fixed SKU as the license's name and are issued by the software manufacturer himself or some trusted third party issuers.
 
-\todo{Can be improved by adding a new method to the token contract that allows to transfer the license to a new address while directly approving withdrawal}
+\todo{Can be improved by adding a new method to the token contract that allows transferring the license to a new address while directly approving withdrawal}
 
 % Just sketchy notes, should not be included in the whitepaper
 %
@@ -531,7 +548,7 @@ It is still need to be determined which LOB licenses are \emph{appropriate} to a
 \section{Validation of license issuers}
 \label{ch:licenseIssuerValidation}
 
-To simplify the judgement of whether or not an issuer is trustworthy (checking its liability, SSL certificate, internal standards), an independent institution can verify license issuers, giving them some status of trustworthyness. This list could be managed on a central address on the ethereum blockchain but is other than by wallet integration not affiliated with LOB.
+To simplify the judgement of whether or not an issuer is trustworthy (checking its liability, SSL certificate, internal standards), an independent institution can verify license issuers, giving them some status of trustworthiness. This list could be managed on a central address on the Ethereum blockchain but is other than by wallet integration not affiliated with LOB.
 
 \bibliography{references}
 
