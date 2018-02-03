@@ -7,13 +7,15 @@
 \usepackage{multicol}
 \usepackage{draftwatermark}
 \usetikzlibrary{positioning}
+\usetikzlibrary{arrows.meta}
 
 \SetWatermarkScale{5}
 
 \newcommand{\todo}[1]{\textsf{TODO: #1}}
 
-\title{\textsf{\Huge Draft} \\[3mm] License on Blockchain \\[2mm] \large Transferring and Managing Software Licenses on the Ethereum Blockchain}
+\title{License on Blockchain \\[5mm] \large Transferring and Managing Software Licenses on the Ethereum Blockchain\footnote{This white paper acts as documentation for version 1 of the smart contracts deployed on the Ethereum blockchain}}
 \author{Alexander Hoppen, Peter Hoppen}
+\date{\today, Version 1}
 
 \begin{document}
 
@@ -22,12 +24,12 @@
 \bibliographystyle{abbrvdin}
 
 \begin{abstract}
-  We present a framework that allows software licenses to be represented on the Ethereum blockchain in a standardised form based on smart contracts, allowing the licenses to be traded without the need of an intermediary while complying to the European laws for trade with used software. A customised wallet has been developed that allows an easy management of the software licenses owned in this framework. Based on the groundwork of this framework, we present new extensions that among others allow a software installation to be activated while guaranteeing that no other installation is used with the same license and not requiring a centralised server maintained by the software manufacturer.
+  We present a framework that allows software licenses to be represented on the Ethereum blockchain in a standardised form based on smart contracts, allowing the licenses to be traded without the need of an intermediary while complying with the European laws for trade with used software. A customised wallet has been developed that allows an easy management of the software licenses owned in this framework. Based on the groundwork of this framework, we present new extensions that among others allow a software installation to be activated while guaranteeing that no other installation is used with the same license and not requiring a centralised server maintained by the software manufacturer.
 \end{abstract}
 
 \section{Overview}
 
-The trade of used software is currently associated with a considerable organisational overhead. Because of their non-physical nature\footnote{Software licenses are often just represented by a license key. The right to use a software may even just be founded in the software manufacturer's bill.}, it is easy to still use a license even after selling it on. To prevent this issue and allow a trustworthy trade of used used software, the following needs to be made sure every time the license is traded:
+The trade of used software is currently associated with a considerable organisational overhead. Because of their non-physical nature\footnote{Software licenses are often just represented by a license key. The right to use a software may even just be founded in the software manufacturer's bill.}, it is easy to still use a license even after selling it on. To prevent this issue and allow a trustworthy trade of used software, the following needs to be made sure every time the license is traded:
 \begin{enumerate}
   \item The previous owner shall not use the license anymore after the trade has been completed.
   \item The previous owner must not have sold the license to a different person or organisation.
@@ -49,9 +51,7 @@ The framework presented in the following shall be called \emph{License on Blockc
 
 We will give an overview of the license's representation on the blockchain in section \ref{ch:licenseRepresentationOverview} and describe how the validity of licenses is made sure in section \ref{ch:licenseValidityOverview}. Section \ref{ch:extensionsOverview} will briefly describe new patterns that can be implemented based on top of LOB.
 
-In the following sections we will dive into the smart contract architecture in more detail (section \ref{ch:smartContractArchitecture}) and take a closer look at the license certificate that gives credibility to the LOB licenses (section \ref{ch:licenseCertificate}). Section \ref{ch:wallet} will briefly describe the LOB wallet that runs in a normal internet browser and allows an easy interaction with licenses managed using LOB. In section \ref{ch:extensions} we will touch on new use cases made possible by the LOB framework and section \ref{ch:offlineProceedures} will describe some procedures that need to be performed offline to verify a licenses validity in detail.
-
-In section \ref{ch:offlineProceedures} we will describe common procedures that need to be performed to issue licenses using LOB and verify their validity. Section \ref{ch:extensions} will touch on new use cases that are enabled by LOB. In the appendix we will finally give a detailed specification of the API of the smart contracts used by LOB.
+In the following sections we will dive into the smart contract architecture in more detail (section \ref{ch:smartContractArchitecture}) and take a closer look at the license certificate that gives credibility to the LOB licenses (section \ref{ch:licenseCertificate}). Section \ref{ch:wallet} will briefly describe the LOB wallet that runs in a normal internet browser and allows an easy interaction with licenses managed using LOB. In sections \ref{ch:issuingSoftwareLicenses} and \ref{ch:validatingOwnership} we will describe the procedures that need to be performed to issue licenses using LOB and verify their validity. Section \ref{ch:extensions} will touch on new use cases that are enabled by LOB. In the appendix we will finally give a detailed specification of the API of the smart contracts used by LOB.
 
 
 
@@ -134,7 +134,7 @@ In essence, the LOB infrastructure consists of two smart contracts:
   \item The \emph{root contract}'s responsibility is to create license contracts on demand and make sure all license contracts share the same implementation and enforce the same legal framework.
 \end{itemize}
 
-Both contracts shall be described below. For a documentation of the contract's API we refer to the appendix.
+Both contracts will be described below. For a documentation of the contract's API we refer to the appendix.
 
 
 
@@ -224,7 +224,7 @@ Figure \ref{fig:licenseContractCreation} gives a schematic overview of the steps
     \draw[double] (root) -- (root9);
     \draw[double] (token) -- (token9);
   \end{tikzpicture}
-  \caption{Schematic representation of token contract creation}
+  \caption{Schematic representation of license contract creation}
   \label{fig:licenseContractCreation}
 \end{figure}
 
@@ -250,7 +250,7 @@ In the latter case, the issuer will verify that the licensee currently owns the 
   \item \textbf{Batch size}: The number of separately tradable licenses issued in this issuance\footnote{A value of 1 is passed if the licenses can only be traded as a batch}
 \end{itemize}
 
-After an issuance has been recored, it gets assigned an \emph{issuance number} that is unique within its license contract and can be used to refer to it. The \emph{issuance ID} of an issuance is the address of its licenses contract combined with its issuance number.
+When the above data is submitted to the smart contract, the new issuance gets assigned an \emph{issuance number} that is unique within its license contract and can be used to refer to it. The \emph{issuance ID} of an issuance is the address of its licenses contract combined with its issuance number.
 
 In case of a legal dispute it may be necessary for an issuance to be revoked (e.g. because the licensee deliberately deceived the issuer by faking the original license and giving wrong statements). In this case, the license's issuer may revoke the issuance by invoking the corresponding function on the license contract. Any reimbursements associated with this action would need to be decided by a court.
 
@@ -265,7 +265,7 @@ Should the issuer of a license contract suspect that somebody has gained access 
 \subsubsection{License Transfer}
 \label{ch:licenseContractTransfer}
 
-After the licenses have been issued, they can be traded freely without the need for any intermediary. In particular, this means that the issuer plays no role in any future transfers and the licenses may still be traded if the issuer decides to not issue any more LOB licenses.
+After licenses have been issued, they can be traded freely without the need for any intermediary. In particular, this means that the issuer plays no role in any future transfers and licenses may still be traded if the issuer decides to not issue any more LOB licenses.
 
 All balances are kept on a per issuance basis. This means that for each issuance consisting of $n$ individually tradable licenses, it is kept track how these licenses are distributed to different Ethereum addresses. In particular, it means that an address may own licenses of the same type (e.g. Microsoft Office 2016 Standard) that are managed under different issuance IDs. Even if these share the same license code, they are managed separately by LOB since the audits resulting in the issuance of these licenses may have been different and the licenses may thus be revoked independently of each other.
 
@@ -309,7 +309,7 @@ Figure \ref{fig:balanceTally} shows the balance tally for three issuances on the
   \label{fig:balanceTally}
 \end{figure}
 
-In order to transfer licenses, the current owner needs to specify the issuance number of the issuance out of which he wants to transfer license as well as the recipient address and the amount of licenses he wants to transfer. Should the amount exceed his balance, the transaction will fail. After successful execution of the transfer transaction, the balance tally for this issuance will be adjusted to credit the transferred licenses to the recipient and deduct them from the sender's balance.
+In order to transfer a license, the current owner needs to specify the issuance number of the issuance out of which he wants to transfer a license as well as the recipient address and the amount of licenses he wants to transfer. Should the amount exceed his balance, the transaction will fail. After successful execution of the transfer transaction, the balance tally for this issuance will be adjusted to credit the transferred licenses to the recipient and deduct them from the sender's balance.
 
 Should any license owner wish to no longer manage the licenses using LOB (e.g. to go back to hardcopy trading for whichever reason), he needs to destroy his LOB license. This is done by transferring the license to the special address \texttt{0x0}.
 
@@ -326,13 +326,77 @@ The main use case for this kind of transfer is to allow individual installations
 \subsubsection{Balance lookup}
 \label{ch:licenseContractBalanceLookup}
 
-Given an Ethereum address it needs to be easily possible to check which licenses are owned by that address. In the most basic case, if the address and an issuance ID is known, the balance and temporary balance of that address can be queried from the license contract. 
+Given an Ethereum address it needs to be easily possible to check which licenses are owned by that address. In the most basic case, if the address and an issuance ID is known, the balance and temporary balance of that address can be queried from the license contract. Additionally, the license contract keeps track of all license transfers through events\footnote{Also known as logs} from which the entire transfer history of a given issuance can be reconstructed. Figure \ref{fig:transferHistory} shows the transfer history of a given issuance as a graph.
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[node distance=1.5cm,
+    coordinate/.style={draw, shape=circle, inner sep=0mm, minimum size=1mm, fill=black},
+    unusedCoordinate/.style={shape=circle, inner sep=0mm, minimum size=1mm},
+  ]
+    \node[unusedCoordinate] (0_0) {};
+    \node[unusedCoordinate, below=of 0_0] (0_1) {};
+    \node[unusedCoordinate, below=of 0_1] (0_2) {};
+    \node[unusedCoordinate, below=of 0_2] (0_3) {};
+    
+    \node[unusedCoordinate, right=of 0_0] (1_0) {};
+    \node[coordinate, right=of 0_1] (1_1) {};
+    \node[unusedCoordinate, right=of 0_2] (1_2) {};
+    \node[unusedCoordinate, right=of 0_3] (1_3) {};
+    
+    \node[unusedCoordinate, right=of 1_0] (2_0) {};
+    \node[coordinate, right=of 1_1] (2_1) {};
+    \node[coordinate, right=of 1_2] (2_2) {};
+    \node[unusedCoordinate, right=of 1_3] (2_3) {};
+    
+    \node[unusedCoordinate, right=of 2_0] (3_0) {};
+    \node[coordinate, right=of 2_1] (3_1) {};
+    \node[coordinate, right=of 2_2] (3_2) {};
+    \node[coordinate, right=of 2_3] (3_3) {};
+    
+    \node[unusedCoordinate, right=of 3_0] (4_0) {};
+    \node[unusedCoordinate, right=of 3_1] (4_1) {};
+    \node[unusedCoordinate, right=of 3_2] (4_2) {};
+    \node[unusedCoordinate, right=of 3_3] (4_3) {};
+    
+    \node[right=1mm of 4_0, align=left, minimum width=7mm] (balance_0) {};
+    \node[right=1mm of 4_1, minimum width=7mm] (balance_1) {55};
+    \node[right=1mm of 4_2, minimum width=7mm] (balance_2) {35};
+    \node[right=1mm of 4_3, minimum width=7mm] (balance_3) {10};
+    
+    \node[right=5mm of balance_0, align=left] (label_0) {\textless Issuer name\textgreater \\ (License contract: 0xd2514…)};
+    \node[right=5mm of balance_1] (label_1) {0x34bB4…};
+    \node[right=5mm of balance_2] (label_2) {0x79446…};
+    \node[right=5mm of balance_3] (label_3) {0x95e24…};
+    
+    \node[above right=5mm and 7.5mm of 0_0, rotate=60] (time_0) {7.1.2018 13:42};
+    \node[above right=5mm and 7.5mm of 1_0, rotate=60] (time_0) {26.1.2018 09:56};
+    \node[above right=5mm and 7.5mm of 2_0, rotate=60] (time_0) {1.2.2018 17:45};
+    \node[above right=5mm and 7.5mm of 3_0, rotate=60] (time_0) {1.2.2018 18:03};
+    
+    \path[->] (0_0) edge[out=0, in=180] node[above, sloped] {100} (1_1);
+    
+    \path[->] (1_1) edge[out=0, in=180] node[above, sloped] {} (2_1);
+    \path[->] (1_1) edge[out=0, in=180] node[above, sloped] {50} (2_2);
+    
+    \path[->] (2_1) edge[out=0, in=180] node[above, sloped] {} (3_1);
+    \path[->] (2_2) edge[out=0, in=180] node[above, sloped] {} (3_2);
+    \path[->] (2_2) edge[out=0, in=180] node[above, sloped] {10} (3_3);
+    
+    \path[->] (3_1) edge[out=0, in=180] node[above, sloped] {} (4_1);
+    \path[->] (3_2) edge[out=0, in=180] node[above, sloped] {} (4_2);
+    \path[->] (3_3) edge[out=0, in=180] node[above, sloped] {} (4_3);
+    \path[->] (3_2) edge[out=0, in=180] node[above, sloped] {5} (4_1);
+  \end{tikzpicture}
+  \caption{Transfer history graph of an issuance}
+  \label{fig:transferHistory}
+\end{figure}
 
 Since all license contracts are created from a fixed set of known root contracts and the license contract exposes all used issuance numbers, one could theoretically iterate through all issuance IDs and retrieve the address's balance for these.
 
-For most issuances, however, the balance will be zero. To avoid unnecessary computation, the license contract keeps track for which issuances an address has ever owned licenses. This list of \emph{relevant issuances} will include all issuance numbers of issuances for which an address currently has a non-zero balance or used to have a non-zero balance but has since passed all licenses on. It has proven that this data structure strikes a good balance between ruling out the majority of irrelevant issuances and being cheap\footnote{In terms of computational power} to keep track of.
+For most issuances, however, the balance for a given address will be zero. To avoid unnecessary computation, the license contract keeps track for which issuances an address has ever owned licenses. This list of \emph{relevant issuances} will include all issuance numbers of issuances for which an address currently has a non-zero balance or used to have a non-zero balance but has since passed all licenses on. It has proven that this data structure strikes a good balance between ruling out the majority of irrelevant issuances and being cheap\footnote{In terms of computational power} to keep track of.
 
-Similarly, it needs to be possible to determine if a given address can reclaim licenses from other addresses and if so, these addresses need to be determined. Therefore, for each address and issuance number the license contract keeps track of all addresses to which licenses have ever been transferred temporarily. This list is once again never cleared and only appended to and thus an over-approximation of the actual set of addresses from which licenses can be reclaimed, but has the same desirable properties that are described above.
+Similarly, it needs to be possible to determine if a given address can reclaim licenses from other addresses and if so, these addresses need to be determined. Therefore, for each address and issuance number the license contract keeps track of all addresses to which licenses have ever been transferred temporarily. This list is also never cleared and only appended to and thus an over-approximation of the actual set of addresses from which licenses can be reclaimed, but has the same desirable properties that are described above.
 
 
 
@@ -347,9 +411,9 @@ Additionally, the root contract keeps track of all license contracts created by 
 
 Should an updated version of the root contract become available, it may be useful to disallow the creation of new license contracts using the old root contract. For this, the root contract may be disabled by its owner (which will be the LOB mother organisation) making the creation of new license contracts through it impossible.
 
-If needed for whichever reason, the owner of the root contract can be changed by the current owner to a new address. Only the current owner is able to instruct the root contract to withdraw collected fees from a license contract and change the default issuance fee for new license contracts or adjust the issuance fee for individual existing license contracts.
+If needed for whichever reason, the owner of the root contract can be changed by the current owner to a new address. Only the current owner is able to manage the root contract, withdraw collected fees from a license contract and change the default issuance fee for new license contracts or adjust the issuance fee for individual existing license contracts.
 
-Should the owner of a license contract loose access to the private key of his address or is unwilling to fulfil a court's order, the owner of the root contract can step in by taking over control of a license contract. After this has been done, the issuer can no longer perform any management actions (issue licenses, revoke licenses, disable the root contract) while the newly instantiated manager can perform the latter two operations. After he has resolved any issues that needed resolving, the manager can pass control of the license contract back to the issuer.
+Should the owner of a license contract loose access to the private key of his address or is unwilling to fulfil a court's order to revoke an issuance, the owner of the root contract can step in by taking over control of a license contract. After this has been done, the issuer can no longer perform any management actions (issue licenses, revoke licenses, disable the root contract) while the newly instantiated manager can perform the latter two operations. After he has resolved any issues that needed resolving, the manager can pass control of the license contract back to the issuer.
 
 
 
@@ -360,11 +424,11 @@ Should the owner of a license contract loose access to the private key of his ad
 
 The license certificate is the key legal building block that guarantees that licenses represented in the LOB framework are either issued during its initial purchase or backed by a genuine hardcopy license that is no longer traded outside the LOB framework.
 
-In essence, the license certificate consists of three key statements which the issuer has acknowledged since he has signed the license certificate using his SSL private key.
+In essence, the license certificate consists of three key statements which the issuer has to acknowledge by signing the license certificate using his SSL private key before issuing licenses.
 
 \begin{enumerate}
   \item The issuer will only issue licenses for which he has been assured by the license owner in an audit that the hardcopy licenses have been purchased correctly, have not been sold on, and are not managed using LOB or another similar scheme yet. All documents that were inspected during the audit will be kept safe by the issuer for the safekeeping period that was specified during the license contract's creation
-  \item The recipient of the LOB licenses will be required to only transfer the license using LOB and require the same from everyone he transfer the licenses to. Should he wish to pass the hardcopy license on, he needs to destroy the LOB license first.
+  \item The issuer will oblige the recipient of the LOB licenses to only transfer the license using LOB and require the same from everyone he transfer the licenses to. Should the recipient wish to pass the hardcopy license on, he needs to destroy the LOB license first.
   \item If the above requirements have been fulfilled by the licenses owner, the issuer will uphold the license certificate for everyone to whom the licenses have been transferred and vouch for the licenses validity up to the liability he has specified during the license contract's creation.
 \end{enumerate}
 
@@ -377,9 +441,9 @@ The interaction with the two smart contracts described so far could be done thro
 
 \subsection{Overview}
 
-For issuers, the wallet will guide the user through the process of creating their own license contract, informing them on which information he needs to enter, making sure that the SSL certificate is in the correct format and help them generate the signature to sign the license contract. From there on, the wallet will offer the issuer a set of previously standardised software types for which licenses can be issued while giving him the option to specify the license type's description and code himself.
+For issuers, the wallet will guide the user through the process of creating their own license contract, informing them on which information he needs to enter, making sure that the SSL certificate is in the correct format and help them generate the signature to sign the license contract. From there on, the wallet will offer the issuer a set of predefined software types for which licenses can be issued while giving him the option to specify the license type's description and code himself.
 
-For license owners, the wallet will present the user with a list of licenses he owns, validating that their license contract is sound, allowing him to view all information he might consider to judge the license's trustworthiness (including the issuer's liability and the license's transfer history). From there, he is also able to easily transfer the licenses or reclaim licenses he has previously transferred temporarily.
+For license owners, the wallet will show a list of licenses owned by him, validating that their license contract is sound, allowing him to view all information he might consider to judge the license's trustworthiness (including the issuer's liability and the license's transfer history). From there, he is also able to easily transfer the licenses or reclaim licenses he has previously transferred temporarily.
 
 Upon visiting the website that hosts the LOB wallet\footnote{\url{https://wallet.lob.alexhoppen.de} \todo{Enter real URL}}, the user will be required to enable Web3 functionality for his browser so that the wallet can communicate with the Ethereum blockchain. The easiest and recommend way is to install the MetaMask\footnote{\url{https://metamask.io}} plugin for the user's browser, but using any other Web3-capable browser like Mist\footnote{Mist is the official Dapp browser for Ethereum, \url{https://github.com/ethereum/mist/releases}} is also supported.
 
@@ -387,7 +451,7 @@ After installation of MetaMask, the user will generate an Ethereum address under
 
 \subsection{Technical details}
 
-The LOB Wallet runs entirely in the user's browser and never transfers any data to LOB's servers. All external communication is done transparently through the Ethereum blockchain. Should the user wish, he can download the wallet and run it locally without connecting to LOB's servers. 
+The LOB Wallet runs entirely in the user's browser and never transfers any data to LOB's servers. All external communication is done transparently through the Ethereum blockchain. Should the user wish, he can download the wallet and run it locally.
 
 The entire communication with the Ethereum blockchain is done through the web3.js\footnote{\url{https://github.com/ethereum/web3.js}} framework which may be injected into common browsers using the MetaMask plugin or is natively provided by the official Ethereum Dapp browser Mist.
 
@@ -401,20 +465,12 @@ For each license that is displayed to the user, the wallet automatically verifie
 
 
 
-\section{Offline procedures}
-\label{ch:offlineProceedures}
-
-In this section, some common offline procedures that are required for the LOB framework to work properly, shall be explained in more detail.
-
-
-
-
-
-\subsection{Issuing of software licenses}
+\section{Issuing software licenses}
+\label{ch:issuingSoftwareLicenses}
 
 The following shall describe the process of issuing an LOB license in more detail. 
 
-\subsubsection{Phase 1: Initial license validation}
+\subsection{Phase 1: Initial license validation}
 
 In a first step, the issuer of the license needs to ensure that the licensee actually owns the software license whose management shall from now on be performed using LOB. For this, multiple scenarios are possible, including the following:
 \begin{itemize}
@@ -425,7 +481,7 @@ In a first step, the issuer of the license needs to ensure that the licensee act
   \item Similarly, any trustworthy third party may perform the validations used software traders perform at the moment, but without purchasing the licenses that shall from now on be managed using LOB. Instead, the third party simply issues the LOB license to the current hardcopy license owner. One crucial aspect of validation the issuer has to perform is that it must certify that the license is not managed using LOB (or any similar system) yet, as to prevent the issuing of multiple LOB licenses for the same hardcopy license. Furthermore, the issuer needs to ensure that the licensee does not sell the hardcopy license without invalidating the LOB license first. This is done by including a paragraph in the license contract's certificate (which is signed by the issuer) that obliges every LOB purchaser to not sell the license outside the LOB framework without destroying its LOB counterpart first.
 \end{itemize}
 
-\subsubsection{Phase 2: Blockchain transactions}
+\subsection{Phase 2: Blockchain transactions}
 
 After the issuer has verified that he wants to issue an LOB license as described in the previous section, he performs the following steps:
 
@@ -444,9 +500,10 @@ After the issuer has verified that he wants to issue an LOB license as described
 
 
 
-\subsection{Validating the ownership of a software license}
+\section{Validating the ownership of a software license}
+\label{ch:validatingOwnership}
 
-Verifying all integrity concerns of token contracts on the blockchain is neither advisable due to the high transaction costs to perform expensive computations, nor is it necessary. Some verification steps don't have a single “right” answer but the licensee needs to judge for himself which requirements apply (such as which certificate authorities to trust or which liability to require). Wallet software has to guide the user through these validation steps and simplify information as much as possible while still allowing the user to view all information. All of these steps are performed automatically by the LOB wallet described in section \ref{ch:wallet}.
+Verifying all integrity concerns of token contracts on the blockchain is neither advisable due to the high transaction costs to perform expensive computations, nor is it necessary. Some verification steps don't have a single “right” answer but the licensee needs to judge for himself which requirements apply (such as which certificate authorities to trust or which liability to require). Wallet software has to guide the user through these validation steps and simplify information as much as possible while still allowing the user to view all information.
 
 The following list shall be a guideline on what checks must be performed to verify that someone owns the LOB license he claims to own. All of the following steps can be performed offline and do not require gas for any transaction to be performed on the blockchain.
 
@@ -459,12 +516,12 @@ The following list shall be a guideline on what checks must be performed to veri
   \item Check that the data returned by \texttt{issuerSSLCertificate()} is a valid SSL certificate
   \item Verify that the name in the issuer's SSL certificate matches the name returned by \texttt{issuerName()}
   \item Judge whether the certificate authority that issued the certificate is trustworthy and has the required security level
-  \item Check if the issuer's SSL certificate been revoked
+  \item Check if the issuer's SSL certificate has been revoked
   \item Verify that the data returned by \texttt{signature()} is a valid signature of the text returned by \texttt{certificateText()} using the certificate returned by \texttt{issuerSSLCertificate()}
   \item Check that the liability is sufficient
 \end{itemize}
 
-
+The wallet described in section \ref{ch:wallet} guides the user through these verification steps. It automatically verifies the license contract's signature and provides the user with a list of decisions he needs to make for himself. For example, there is no “right” decision for which liability is required for a license issuance and the user needs to judge for himself if what the issuer provided in the free text format satisfies his needs. Furthermore, the SSL certificate may be issued for the issuer's website and contain the website's URL as its common name. It will thus not match the name returned by \texttt{issuerName()} but the user may still decide to trust the issuance if the domain and issuer name match.
 
 
 
@@ -482,9 +539,9 @@ For this, the software installation will generate an Ethereum address when it is
 
 In practice, after being installed, the software will ask the user to \emph{temporarily transfer} an appropriate license to the Ethereum address it has just generated. Once the user has submitted this transfer and the transaction is mined, the installation will pick up its non-zero license balance and be activated. Until such time, it may operate in a trial mode or give the user a grace period of several days to submit the transaction. Should the user wish to use the license in another way (e.g. to activate a different installation or sell it on), he can \emph{reclaim} the license from the installation's address. The installation will notice the non-zero balance next time it checks\footnote{e.g. on the next launch} and deactivate itself.
 
-Notice that in the entire scheme the installation's address never submits any transactions and is thus neither required to own any Ether nor is its private key ever needed. We still recommend the software to keep track of the private key so that it in case the user transferred a license to the address non-temporarily, the installation can show the private key to the user who can then deposit Ether on it and submit a transaction that passes the license back to his original address.
+Notice that in the entire scheme the installation's address never submits any transactions and is thus neither required to own any Ether nor is its private key ever needed.\footnote{We still recommend the software to keep track of the private key so that in case the user transferred a license to the address non-temporarily, the installation can show the private key to the user who can then deposit Ether on it and submit a transaction that passes the license back to his original address.}
 
-We would also like to highlight that the software manufacturer does not need to maintain any servers to adopt the above method since all management is done on the Ethereum blockchain. It will even continue to work, should the manufacturer go out of business or decide to no longer support a software product.
+We would also like to highlight that a software manufacturer does not need to operate any servers to adopt the above method since all management is done on the Ethereum blockchain. It will even continue to work, should the manufacturer go out of business or decide to no longer support a software product.
 
 
 
@@ -502,7 +559,7 @@ To simplify the judgement of whether or not an issuer is trustworthy (checking i
 \subsection{Purchase contract}
 \label{ch:purchaseContract}
 
-To avoid the issue where one party transfers the LOB license to be traded but the other does not pay the agreed amount (or vice versa), the trading parties may agree to set up a smart contract that takes the role of an escrow: Only after the seller of the license has transferred the license to this smart contract and the purchaser has transferred the agreed price (in Ether) to the smart contract can the purchaser retrieve the licenses from the escrow and the seller take the deposited money. No adjustment of LOB is necessary for this.
+To avoid the issue where one party transfers the LOB license to be traded but the other does not pay the agreed amount (or vice versa), the trading parties may agree to set up a smart contract that takes the role of an escrow: Only after the seller of the license has transferred the license to this smart contract and the purchaser has transferred the agreed price (in Ether) to the smart contract can the purchaser retrieve the licenses from the escrow and the seller take the deposited money. No adjustment of LOB's smart contracts is necessary for this.
 
 
 
@@ -559,7 +616,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 \begin{itemize}
   \item \texttt{function LicenseContract(address \_issuer, string \_issuerName, string \_liability, \\uint8 \_safekeepingPeriod, bytes \_issuerSSLCertificate, uint128 \_fee)}
   \begin{itemize}
-    \item Create a new license contract.
+    \item Creates a new license contract.
     \item The sender of this message becomes the LOB root.
     \item New license contracts should only be created via an LOB root contract and this method should thus never be called directly.
     \item \texttt{\_issuer}: The address that will be allowed to issue licenses via this contract
@@ -573,14 +630,14 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function certificateText() constant returns (string)}
   \begin{itemize}
-    \item Build the certificate text by filling custom placeholders into a template certificate text.
+    \item Builds the certificate text by filling custom placeholders into a template certificate text.
     \item This is the text that needs to be signed to generate the signature for the \texttt{sign} method.
     \item Returns the certificate text template with placeholders instantiated by the given parameters
   \end{itemize}
   
   \item \texttt{function sign(bytes \_signature)}
   \begin{itemize}
-    \item Sign the license contract, verifying that the private key of this contract's issuer's address is owned by the owner of the private key for \texttt{issuerSSLCertificate} and that the issuer will comply with the LOB rules.
+    \item Signs the license contract, verifying that the private key of this contract's issuer's address is owned by the owner of the private key for \texttt{issuerSSLCertificate} and that the issuer will comply with the LOB rules.
     \item The signature shall sign the text returned by \texttt{certificateText()} using the private key belonging to \texttt{issuerSSLCertificate}. It must be a SHA-256 digest of the certificate text signed using the private key of the SSL certificate and can be generated using OpenSSL with the following command: \\\texttt{openssl dgst -sha256 -sign privateKey.key -hex CertificateText.txt}
     \item Prior to signing the license contract, licenses cannot be issued.
     \item It is not verified on the blockchain if the signature is valid or well-formed due to the high computational cost. The LOB Wallet performs this validation.
@@ -599,7 +656,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 \begin{itemize}
   \item \texttt{function issueLicense(string licenseDescription, string licenseCode, address \\ initialOwnerAddress, uint64 numLicenses, string auditRemark, uint32 auditTime) payable}
   \begin{itemize}
-    \item Issue new LOB licenses. The following conditions must be satisfied for this function to succeed:
+    \item Issues new LOB licenses. The following conditions must be satisfied for this function to succeed:
     \begin{itemize}
       \item The function must be called by the issuer
       \item The license contract needs to be signed
@@ -636,7 +693,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function revoke(uint256 issuanceNumber, string revocationReason)}
   \begin{itemize}
-    \item Revoke the given issuance, disallowing any further license transfers (including temporary transfers) or reclaims. 
+    \item Revokes the given issuance, disallowing any further license transfers (including temporary transfers) or reclaims. 
     \item This action cannot be undone.
     \item This can be performed by the issuer if control has not been taken over for this license contract and the license contract has not been disabled. If control has been taken over, the manager may revoke licenses even if the license contract has been disabled.
     \item \texttt{issuanceNumber}: The issuance that shall be revoked
@@ -687,7 +744,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function relevantIssuancesCount(address owner) constant returns (uint256)}
   \begin{itemize}
-    \item Determine the number of issuances relevant for the given owner that can be retrieved using \\\texttt{relevantIssuances(owner, i)} where \texttt{i < relevantIssuancesCount(owner)}.
+    \item Determines the number of issuances relevant for the given owner that can be retrieved using \\\texttt{relevantIssuances(owner, i)} where \texttt{i < relevantIssuancesCount(owner)}.
     \item Note that because \texttt{relevantIssuances} is an over-approximation, it may contain duplicate and outdated entries. Thus, the number of actually relevant issuances for this owner may be smaller than the number returned by this method.
     \item Returns an upper bound (exclusive) \texttt{i} that can be used when accessing \texttt{relevantIssuances(owner, i)}
     \item \texttt{owner}: The owner for which relevant issuances shall be determined
@@ -695,7 +752,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function temporaryLicenseHolders(uint256 issuanceNumber, \\address originalOwner, uint256 index) constant returns (address)}
   \begin{itemize}
-    \item Retrieve the \texttt{index}th address from which licenses may be reclaimable by \texttt{originalOwner}. The maximum index can be determined using \texttt{temporaryLicenseHoldersCount}.
+    \item Retrieves the \texttt{index}th address from which licenses may be reclaimable by \texttt{originalOwner}. The maximum index can be determined using \texttt{temporaryLicenseHoldersCount}.
     \item \texttt{temporaryLicenseHolders} is a list of addresses to which licenses have been transferred temporarily by \texttt{originalOwner}. It is an auxiliary list to quickly determine a superset of the addresses from which licenses may be reclaimed while being computationally cheap to manage.
     \item Whenever \texttt{x} has temporarily transferred a licenses to \texttt{y}, \texttt{y} will be in \texttt{temporaryLicenseHolders[x]}. The list is  never cleared, thus the existence of an address in the list does not guarantee that a reclaim is possible (e.g. if the licenses has already been reclaimed). Addresses may occur multiple times in the list, since it is only appended to.
     \item Returns an address from which \texttt{originalOwner} may be able to reclaim licenses of the given issuance number
@@ -706,7 +763,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function temporaryLicenseHoldersCount(uint256 issuanceNumber, address originalOwner) \\constant returns (uint256)}
   \begin{itemize}
-    \item Determine the number of addresses from which \texttt{originalOwner} may be able to reclaim licenses of issuance \texttt{issuanceNumber}. These addresses can be retrieved using \texttt{temporaryLicenseHolders}.
+    \item Determines the number of addresses from which \texttt{originalOwner} may be able to reclaim licenses of issuance \texttt{issuanceNumber}. These addresses can be retrieved using \texttt{temporaryLicenseHolders}.
     \item Note that because \texttt{temporaryLicenseHolders} is an over-approximation, it may contain duplicate entries and is never cleared. Thus, the number of addresses \texttt{originalOwner} is able to reclaim licenses from is likely lower than the count returned by this function.
     \item Returns an upper bound (exclusive) on the index for \texttt{temporaryLicenseHolders}
     \item \texttt{issuanceNumber}: The issuance for which the addresses from which licenses may be reclaimable shall be determined
@@ -722,7 +779,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function temporaryBalance(uint256 issuanceNumber, address owner) \\constant returns (uint64)}
   \begin{itemize}
-    \item Retuns the number of licenses of a given issuance temporarily owned by \texttt{owner} and which thus may be reclaimed by a different address (i.e. the number of licenses that are not properly owned by \texttt{owner}).
+    \item Returns the number of licenses of a given issuance temporarily owned by \texttt{owner} and which thus may be reclaimed by a different address (i.e. the number of licenses that are not properly owned by \texttt{owner}).
     \item \texttt{issuanceNumber}: The issuance for which the balance shall be determined
     \item \texttt{owner}: The address for which the balance shall be determined
   \end{itemize}
@@ -741,7 +798,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 \begin{itemize}
   \item \texttt{function transfer(uint256 issuanceNumber, address to, uint64 amount)}
   \begin{itemize}
-    \item Transfer \texttt{amount} licenses of the given issuance from the sender's address to \texttt{to}. \texttt{to} becomes the new proper owner of these licenses.
+    \item Transfers \texttt{amount} licenses of the given issuance from the sender's address to \texttt{to}. \texttt{to} becomes the new proper owner of these licenses.
     \item This requires that:
     \begin{itemize}
       \item The sender properly owns at least \texttt{amount} licenses of the given issuance (transferring temporary balance is not allowed)
@@ -755,7 +812,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function transferTemporarily(uint256 issuanceNumber, address to, uint64 amount)}
   \begin{itemize}
-    \item Temporarily transfer \texttt{amount} licenses of the given issuance from the sender's address to \texttt{to}. \texttt{to} becomes the temporary owner of the licenses and the sender is allowed to reclaim the licenses at any point. \texttt{to} is not allowed to transfer these licenses to anyone else.
+    \item Temporarily transfers \texttt{amount} licenses of the given issuance from the sender's address to \texttt{to}. \texttt{to} becomes the temporary owner of the licenses and the sender is allowed to reclaim the licenses at any point. \texttt{to} is not allowed to transfer these licenses to anyone else.
     \item This requires that:
     \begin{itemize}
       \item The sender properly owns at least \texttt{amount} licenses of the given issuance
@@ -781,7 +838,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function reclaim(uint256 issuanceNumber, address from, uint64 amount)}
   \begin{itemize}
-    \item Reclaim \texttt{amount} licenses licenses that were previously temporarily transferred from the sender to \texttt{from} using \texttt{transferTemporarily}. 
+    \item Reclaims \texttt{amount} licenses licenses that were previously temporarily transferred from the sender to \texttt{from} using \texttt{transferTemporarily}. 
     \item This deducts them from \texttt{from}'s temporary balance and adds them to the sender's proper balance.
     \item This requires that:
     \begin{itemize}
@@ -822,7 +879,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function takeOverManagementControl(address \_managerAddress) external}
   \begin{itemize}
-    \item Take over control of this license contract to fix any mistakes or clean the contract up in case the issuer has lost access to his address. 
+    \item Takes over control of this license contract to fix any mistakes or clean the contract up in case the issuer has lost access to his address. 
     \item This will set the contract into a special management mode that disallows any management action by the issuer and grants the management address the right to revoke issuances and disable the license contract.
     \item Setting the manager address back to \texttt{0x0} passes control back to the issuer.
     \item This can only be invoked by the LOB root.
@@ -837,7 +894,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function setIssuanceFee(uint128 newFee)}
   \begin{itemize}
-    \item Set the fee required for every license issuance to a new amount. 
+    \item Sets the fee required for every license issuance to a new amount. 
     \item This can only be done by the LOB root.
     \item \texttt{newFee}: The new issuance fee in Wei
   \end{itemize}
@@ -851,7 +908,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function withdraw(uint256 amount, address recipient)}
   \begin{itemize}
-    \item Withdraw Ether that have been collected as fees from the license contract to the address \texttt{recipient}. 
+    \item Withdraws Ether that have been collected as fees from the license contract to the address \texttt{recipient}. 
     \item This can only be initiated by the LOB root.
     \item \texttt{amount}: The amount that shall be withdrawn in Wei
     \item \texttt{recipient}: The address that shall receive the withdrawn Ether
@@ -859,7 +916,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function disable()}
   \begin{itemize}
-    \item Disable the license contract, disallowing any further license issuances and license revocations by the issuer (a potential manager will still be able to revoke licenses) while still allowing licenses to be transferred. 
+    \item Disables the license contract, disallowing any further license issuances and license revocations by the issuer (a potential manager will still be able to revoke licenses) while still allowing licenses to be transferred. 
     \item This action cannot be undone. 
     \item It can only be performed by the issuer or the manager if LOB has taken over control for this license contract.
   \end{itemize}
@@ -887,7 +944,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 \begin{itemize}
   \item \texttt{function createLicenseContract(string issuerName, string liability, \\uint8 safekeepingPeriod, bytes issuerSSLCertificate) returns (address)}
   \begin{itemize}
-    \item Initiate the creation of a new license contract tailored to the specified issuer. 
+    \item Initiates the creation of a new license contract tailored to the specified issuer. 
     \item Once this call has be executed, the newly created license contract needs to be signed before it can issue licenses.
     \item This contract is the LOB root of the license contract and the invoker of this function the license contract's issuer.
     \item The SSL certificate needs to be PKCS\#12 encoded and encrypted with an empty password.
@@ -911,7 +968,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 
   \item \texttt{function licenseContractCount() constant returns (uint256)}
   \begin{itemize}
-    \item Return the number of license contracts created by this root contract
+    \item Returns the number of license contracts created by this root contract
     \item This is the upper bound (exclusively) on the index for \texttt{licenseContracts(index)}
   \end{itemize}
 \end{itemize}
@@ -921,7 +978,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 \begin{itemize}
   \item \texttt{function withdrawFromLicenseContract(address licenseContractAddress, uint256 amount, \\address recipient)}
   \begin{itemize}
-    \item Withdraw fees collected by a license contract from the license contract and transfer them to \texttt{recipient}.
+    \item Withdraws fees collected by a license contract from the license contract and transfer them to \texttt{recipient}.
     \item This can only be invoked by the root contract's owner.
     \item \texttt{licenseContractAddress}: The address of the license contract from which collected fees shall be withdrawn
     \item \texttt{amount}: The amount of Wei that shall be withdrawn from the license contract. Needs to be lower than the amount of fees collected by the license contract
@@ -930,7 +987,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function takeOverLicenseContractControl(address licenseContractAddress, \\address managerAddress)}
   \begin{itemize}
-    \item Take over control of a license contract, disallowing any management actions by the issuer and allowing the manager to revoke issuances and disable the license contract.
+    \item Takes over control of a license contract, disallowing any management actions by the issuer and allowing the manager to revoke issuances and disable the license contract.
     \item Setting the manager address to \texttt{0x0} passes control back to the issuer.
     \item \texttt{licenseContractAddress}: The address of the license contract for which control should be taken over
     \item \texttt{managerAddress}: The address that shall manage the license contract
@@ -942,7 +999,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 \begin{itemize}
   \item \texttt{function setDefaultIssuanceFee(uint128 newDefaultFee)}
   \begin{itemize}
-    \item Set the issuance fee that is set on every newly created license contract and which is thus required for every issuance made by that license contract.
+    \item Sets the issuance fee that is set on every newly created license contract and which is thus required for every issuance made by that license contract.
     \item This can only be invoked by the root contract's owner.
     \item \texttt{newDefaultFee}: The new default issuance fee that shall be set on every newly created license contract
   \end{itemize}
@@ -954,7 +1011,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function setLicenseContractIssuanceFee(address licenseContractAddress, uint128 newFee)}
   \begin{itemize}
-    \item Set the issuance fee of a license contract. 
+    \item Sets the issuance fee of a license contract. 
     \item See documentation of \texttt{LicenseContract.setIssuanceFee} for detailed information.
     \item This can only be invoked by the root contract's owner.
     \item \texttt{licenseContractAddress}: The address of the license contract for which the issuance fee shall be changed
@@ -967,12 +1024,12 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 \begin{itemize}
   \item \texttt{function RootContract()}
   \begin{itemize}
-    \item Create a new root contract whose owner is set to the message sender.
+    \item Creates a new root contract whose owner is set to the message sender.
   \end{itemize}
   
   \item \texttt{function setOwner(address newOwner)}
   \begin{itemize}
-    \item Set the owner of the root contract to a new address.
+    \item Sets the owner of the root contract to a new address.
     \item This can only be invoked by the current owner.
     \item \texttt{newOwner}: The address of the new owner for this root contract
   \end{itemize}
@@ -984,7 +1041,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
   
   \item \texttt{function disable()}
   \begin{itemize}
-    \item Disable this root contract, making it unable to create any more license contracts
+    \item Disables this root contract, making it unable to create any more license contracts
     \item This action cannot be undone
     \item Upon successful execution, the \texttt{Disabling} event is fired
     \item This can only be invoked by the root contract's owner
