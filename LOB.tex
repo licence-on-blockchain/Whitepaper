@@ -29,7 +29,7 @@
 
 \section{Overview}
 
-The trade of used software is currently associated with a considerable organisational overhead. Because of their non-physical nature\footnote{Software licenses are often just represented by a license key. The right to use a software may even just be founded in the software manufacturer's bill.}, it is easy to still use a license even after selling it on. To prevent this issue and allow a trustworthy trade of used software, the following needs to be made sure every time the license is traded:
+The trade of used software is currently associated with a considerable organisational overhead. Because of their non-physical nature\footnote{Software licenses are often just represented by a license key. The right to use a software may even just be founded in the software manufacturer's bill.}, it is easy to still use a license even after selling it on. To prevent this and allow a trustworthy trade of used software, the following needs to be made sure every time the license is traded:
 \begin{enumerate}
   \item The previous owner shall not use the license anymore after the trade has been completed.
   \item The previous owner must not have sold the license to a different person or organisation.
@@ -235,7 +235,7 @@ Figure \ref{fig:licenseContractCreation} gives a schematic overview of the steps
 \subsubsection{License Issuing}
 \label{ch:licenseContractIssuing}
 
-After the license contract has been successfully set up, the issuer may issue licenses through it. Here, two fundamentally different scenarios need to be considered:
+After the license contract has been successfully set up, the issuer may issue licenses through it. Here, two different scenarios need to be considered:
 \begin{itemize}
   \item The license is issued as part of the original purchase
   \item The license is issued \emph{retroactively} to manage an existing hardcopy license using LOB
@@ -433,15 +433,15 @@ In essence, the license certificate consists of three key statements which the i
 \section{LOB wallet}
 \label{ch:wallet}
 
-The interaction with the two smart contracts described so far could be done through standard wallet software that allows generic interactions with smart contracts by invoking the functions described in sections \ref{ch:licenseContractAPI} and \ref{ch:rootContractAPI} directly, but the easiest way to interact with these is the \emph{LOB Wallet}. This wallet will automatically present the user his current balance of licenses in a graphical user interface and allow easy transfers of these licenses while keeping track of the transfer's confirmation status on the Ethereum blockchain. This Dapp\footnote{Distributed application} is implemented as a locally running reactive webpage that interacts with Ethereum using the officially sanctioned open source web3.js framework.
+The interaction with the two smart contracts described so far can be done through standard wallet software that allows generic interactions with smart contracts by invoking the functions described in sections \ref{ch:licenseContractAPI} and \ref{ch:rootContractAPI} directly, but the easiest way to interact with these is the \emph{LOB Wallet}. This wallet will automatically present the user his current balance of licenses in a graphical user interface and allow easy transfers of these licenses while keeping track of the transfer's confirmation status on the Ethereum blockchain. This Dapp\footnote{Distributed application} is implemented as a locally running reactive webpage that interacts with Ethereum using the officially sanctioned open source web3.js framework.
 
 \subsection{Overview}
 
 For issuers, the wallet will guide the user through the process of creating their own license contract, informing them on which information he needs to enter, making sure that the SSL certificate is in the correct format and help them generate the signature to sign the license contract. From there on, the wallet will offer the issuer a set of predefined software types for which licenses can be issued while giving him the option to specify the license type's description and code himself.
 
-For license owners, the wallet will show a list of licenses owned by him, validating that their license contract is sound, allowing him to view all information he might consider to judge the license's trustworthiness (including the issuer's liability and the license's transfer history). From there, he is also able to easily transfer the licenses or reclaim licenses he has previously transferred temporarily.
+For a license owner, the wallet will show a list of licenses owned by him, validating that their license contract is sound, allowing him to view all information he might consider to judge the license's trustworthiness (including the issuer's liability and the license's transfer history). From there, he is also able to easily transfer the licenses or reclaim licenses he has previously transferred temporarily.
 
-Upon visiting the website that hosts the LOB wallet\footnote{\url{https://wallet.lob.alexhoppen.de} \todo{Enter real URL}}, the user will be required to enable Web3 functionality for his browser so that the wallet can communicate with the Ethereum blockchain. The easiest and recommended way is to install the MetaMask\footnote{\url{https://metamask.io}} plugin for the user's browser, but using any other Web3-capable browser like Mist\footnote{Mist is the official Dapp browser for Ethereum, \url{https://github.com/ethereum/mist/releases}} is also supported.
+Upon visiting the website that hosts the LOB wallet\footnote{\url{https://wallet.license-on-blockchain.org}}, the user will be required to enable Web3 functionality for his browser so that the wallet can communicate with the Ethereum blockchain. The easiest and recommended way is to install the MetaMask\footnote{\url{https://metamask.io}} plugin for the user's browser, but using any other Web3-capable browser like Mist\footnote{Mist is the official Dapp browser for Ethereum, \url{https://github.com/ethereum/mist/releases}} is also supported.
 
 After installation of MetaMask, the user will generate an Ethereum address under which he can receive LOB licenses. If he wishes to transfer licenses, he needs to purchase Ether and deposit them on his account so that he can pay the transaction fees towards the miners that are required by the Ethereum network.
 
@@ -466,7 +466,7 @@ For each license that is displayed to the user, the wallet automatically verifie
 
 The following shall describe the process of issuing an LOB license in more detail. 
 
-\subsection{Phase 1: Initial license validation}
+\subsection{Initial license validation}
 
 In a first step, the issuer of the license needs to ensure that the licensee actually owns the software license whose management shall from now on be performed using LOB. For this, multiple scenarios are possible, including the following:
 \begin{itemize}
@@ -477,7 +477,7 @@ In a first step, the issuer of the license needs to ensure that the licensee act
   \item Similarly, any trustworthy third party may perform the validations used software traders perform at the moment, but without purchasing the licenses that shall from now on be managed using LOB. Instead, the third party simply issues the LOB license to the current hardcopy license owner. One crucial aspect of validation the issuer has to perform is that it must certify that the license is not managed using LOB (or any similar system) yet, as to prevent the issuing of multiple LOB licenses for the same hardcopy license. Furthermore, the issuer needs to ensure that the licensee does not sell the hardcopy license without invalidating the LOB license first. This is done by including a paragraph in the license contract's certificate (which is signed by the issuer) that obliges every LOB purchaser to not sell the license outside the LOB framework without destroying its LOB counterpart first.
 \end{itemize}
 
-\subsection{Phase 2: Blockchain transactions}
+\subsection{Blockchain transactions}
 
 After the issuer has verified that he wants to issue an LOB license as described in the previous section, he performs the following steps:
 
@@ -568,7 +568,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
 \subsection{License contract API}
 \label{ch:licenseContractAPI}
 
-\subsubsection{Liability and issuer identification}
+\subsubsection{Issuer identification}
 
 \begin{itemize}
   \item \texttt{function issuerName() constant returns (string)}
@@ -617,7 +617,7 @@ To avoid the issue where one party transfers the LOB license to be traded but th
     \item New license contracts should only be created via an LOB root contract and this method should thus never be called directly.
     \item \texttt{\_issuer}: The address that will be allowed to issue licenses via this contract
     \item \texttt{\_issuerName}: The name of the person or organisation that will issue licenses via this contract. See documentation of \texttt{issuerName()} for more information.
-    \item \texttt{\_liability}:  The liability the issuer guarantees for each issuance
+    \item \texttt{\_liability}:  A free text that describes the liability the issuer guarantees for each issuance
     \item \texttt{\_safekeepingPeriod}: The number of years all documents related to the audit will be kept by the issuer
     \item \texttt{\_issuerSSLCertificate}: An SSL certificate created for the person or organisation that will issue licenses via this contract. See documentation of \texttt{issuerSSLCertificate()} for more information.
     \item \texttt{\_issuanceFee}: The fee that is required to be paid for each license issuance in Wei. May be changed later.
