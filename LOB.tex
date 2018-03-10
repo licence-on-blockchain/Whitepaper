@@ -47,12 +47,13 @@ In this paper we will introduce an approach that allows software licenses to be 
   \item To verify that all licenses represented on the Blockchain are backed by a validly purchased license that is accepted by the software manufacturer (requirement 3).
 \end{itemize}
 
-The framework presented in the following shall be called \emph{License on Blockchain (LOB)}.
+The framework presented in the following shall be called \emph{License on Blockchain (LOB)}. 
 
 We will give an overview of the license's representation on the blockchain in section \ref{ch:licenseRepresentationOverview} and describe how the validity of licenses is made sure in section \ref{ch:licenseValidityOverview}. Section \ref{ch:extensionsOverview} will briefly describe new patterns that can be implemented based on top of LOB.
 
 In the following sections we will dive into the smart contract architecture in more detail (section \ref{ch:smartContractArchitecture}) and take a closer look at the license certificate that gives credibility to the LOB licenses (section \ref{ch:licenseCertificate}). Section \ref{ch:wallet} will briefly describe the LOB wallet that runs in a normal internet browser and allows an easy interaction with licenses managed using LOB. In sections \ref{ch:issuingSoftwareLicenses} and \ref{ch:validatingOwnership} we will describe the procedures that need to be performed to issue licenses using LOB and verify their validity. Section \ref{ch:extensions} will touch on new use cases that are enabled by LOB. In the appendix we will finally give a detailed specification of the API of the smart contracts used by LOB.
 
+An implementation of the presented framework consisting of smart contracts and a web-based wallet software is available on GitHub\footnote{\url{https://github.com/license-on-blockchain}}.
 
 
 
@@ -433,7 +434,7 @@ In essence, the license certificate consists of three key statements which the i
 \section{LOB wallet}
 \label{ch:wallet}
 
-The interaction with the two smart contracts described so far can be done through standard wallet software that allows generic interactions with smart contracts by invoking the functions described in sections \ref{ch:licenseContractAPI} and \ref{ch:rootContractAPI} directly, but the easiest way to interact with these is the \emph{LOB Wallet}. This wallet will automatically present the user his current balance of licenses in a graphical user interface and allow easy transfers of these licenses while keeping track of the transfer's confirmation status on the Ethereum blockchain. This Dapp\footnote{Distributed application} is implemented as a locally running reactive webpage that interacts with Ethereum using the officially sanctioned open source web3.js framework.
+The interaction with the two smart contracts described so far can be done through standard wallet software that allows generic interactions with smart contracts by invoking the functions described in sections \ref{ch:licenseContractAPI} and \ref{ch:rootContractAPI} directly, but the easiest way to interact with these is the \emph{LOB Wallet}. This wallet will automatically present the user his current balance of licenses in a graphical user interface and allow easy transfers of these licenses while keeping track of the transfer's confirmation status on the Ethereum blockchain. This Dapp\footnote{Distributed application} is implemented as a locally running reactive webpage that interacts with Ethereum using the officially sanctioned open source web3.js framework. Its source code is publicly available on GitHub\footnote{\url{https://github.com/license-on-blockchain/dapp}}.
 
 \subsection{Overview}
 
